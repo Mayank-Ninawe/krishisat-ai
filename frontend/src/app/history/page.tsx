@@ -18,7 +18,7 @@ export default function HistoryPage() {
   const [fetching, setFetching] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) router.push('/login')
+    if (!loading && !user) router.push('/')
   }, [user, loading])
 
   useEffect(() => {
