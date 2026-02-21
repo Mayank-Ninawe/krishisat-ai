@@ -49,4 +49,36 @@ router.get('/:id/risk', async (req, res) => {
   }
 });
 
+const axios = require('axios');
+
+// GET /api/districts/:id/weather — Real weather for district
+router.get('/:id/weather', async (req, res) => {
+  try {
+    const district = DISTRICTS.find(d => d.id === parseInt(req.params.id));
+    if (!district) {
+      return res.status(404).json({ success: false, error: 'District not found' });
+    }
+
+    const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+    // ML service se full prediction lo (real weather + NDVI)
+    const response = await axios.post(`${ML_URL}/predict/full`, {
+      bbox       : district.bbox,
+      lat        : district.lat,
+      lon        : district.lon,
+      district_id: district.id
+    }, { timeout: 30000 });
+
+    res.json({
+      success : true,
+      district: district.name,
+      data    : response.data
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 module.exports = router;

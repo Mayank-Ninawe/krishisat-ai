@@ -181,11 +181,19 @@ def predict_forecast(ndvi_series: list, weather: dict) -> dict:
     
     max_risk   = max(r["risk_score"] for r in forecast)
     peak_day   = max(forecast, key=lambda x: x["risk_score"])["day"]
-    
+    risk_level = get_risk_level(max_risk)
+
+    # Risk level ke hisaab se specific recommendation
+    risk_recommendations = {
+        "HIGH"  : "⚠️ High disease risk detected! Apply preventive fungicide (Mancozeb 75% WP @ 2g/L) immediately. Avoid irrigation for 2-3 days. Monitor daily.",
+        "MEDIUM": "⚡ Moderate risk — Scout fields every 2 days. Keep drainage clear. Consider preventive spray if humidity stays above 75%.",
+        "LOW"   : "✅ Low disease risk. Continue regular monitoring. Maintain proper plant spacing for air circulation."
+    }
+
     return {
         "forecast"       : forecast,
         "max_risk_score" : round(max_risk, 3),
-        "max_risk_level" : get_risk_level(max_risk),
+        "max_risk_level" : risk_level,
         "peak_risk_day"  : peak_day,
-        "recommendation" : get_recommendation("disease", get_risk_level(max_risk))
+        "recommendation" : risk_recommendations[risk_level]
     }
