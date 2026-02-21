@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://krishisat-ai-8az9.vercel.app/'
+    'https://krishisat-ai-8az9.vercel.app'
   ],
   credentials: true
 }));

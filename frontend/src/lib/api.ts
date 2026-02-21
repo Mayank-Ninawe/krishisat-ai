@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { auth } from './firebase'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const API_BASE_URL = ''
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +9,7 @@ export const api = axios.create({
 })
 
 // Keep BACKEND as alias for compatibility
-const BACKEND = API_BASE_URL
+const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 // Auth header helper
 const authHeader = async () => {
