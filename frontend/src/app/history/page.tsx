@@ -1,10 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { getScanHistory } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+
+interface Scan {
+  scanId        : string
+  cropType      : string
+  fieldLocation : string
+  disease       : string
+  confidence    : number
+  riskLevel     : string
+  riskScore     : number
+  recommendation: string
+  scannedAt     : string
+}
 
 const riskColor = (l: string) =>
   l === 'HIGH' ? '#f87171' : l === 'MEDIUM' ? '#fbbf24' : '#4ade80'
@@ -12,30 +24,25 @@ const riskColor = (l: string) =>
 export default function HistoryPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [scans,    setScans]    = useState<any[]>([])
-  const [filtered, setFiltered] = useState<any[]>([])
-  const [filter,   setFilter]   = useState('ALL')
+  const [scans,    setScans]  = useState<Scan[]>([])
+  const [filter,   setFilter] = useState('ALL')
   const [fetching, setFetching] = useState(true)
+
+  const filtered = useMemo(
+    () => filter === 'ALL' ? scans : scans.filter(s => s.riskLevel === filter),
+    [filter, scans]
+  )
 
   useEffect(() => {
     if (!loading && !user) router.push('/')
-  }, [user, loading])
+  }, [user, loading, router])
 
   useEffect(() => {
     if (!user) return
     getScanHistory(50).then(r => {
       setScans(r.data || [])
-      setFiltered(r.data || [])
     }).finally(() => setFetching(false))
   }, [user])
-
-  useEffect(() => {
-    setFiltered(
-      filter === 'ALL'
-        ? scans
-        : scans.filter(s => s.riskLevel === filter)
-    )
-  }, [filter, scans])
 
   if (fetching) {
     return (
@@ -162,7 +169,7 @@ export default function HistoryPage() {
                   style={{ cursor: 'default' }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
                            style={{
                              background: riskColor(scan.riskLevel) + '12',
                              border    : `1px solid ${riskColor(scan.riskLevel)}25`
@@ -186,7 +193,7 @@ export default function HistoryPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-right shrink-0">
                       <span className="text-xs font-black px-2.5 py-1 rounded-full"
                             style={{
                               background: riskColor(scan.riskLevel) + '18',
