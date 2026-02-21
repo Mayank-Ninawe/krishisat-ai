@@ -1,0 +1,12 @@
+{
+  "top1_accuracy": 91.75,
+  "top5_accuracy": 99.66,
+  "macro_avg_f1": 87.13,
+  "weighted_avg_f1": 91.95,
+  "total_test_images": 7742,
+  "num_classes": 96,
+  "best_class": "Apple___Cedar_apple_rust",
+  "best_class_f1": 100.0,
+  "worst_class": "Wheat_Septoria",
+  "worst_class_f1": 41.38
+}

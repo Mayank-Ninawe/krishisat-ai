@@ -1,0 +1,18 @@
+{
+  "input_size": 5,
+  "hidden_size": 128,
+  "num_layers": 2,
+  "forecast_days": 7,
+  "dropout": 0.3,
+  "sequence_len": 30,
+  "features": [
+    "ndvi",
+    "temperature",
+    "humidity",
+    "rainfall",
+    "day_of_year"
+  ],
+  "mae": 0.065,
+  "rmse": 0.0884,
+  "best_val_loss": 0.00777
+}

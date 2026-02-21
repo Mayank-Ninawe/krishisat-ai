@@ -1,0 +1,11 @@
+{
+  "architecture": "EfficientNetB0",
+  "num_classes": 96,
+  "img_size": 224,
+  "phase1_epochs": 25,
+  "phase2_epochs": 8,
+  "phase1_best_acc": 88.65137971239798,
+  "finetune_best_acc": 91.77354579608757,
+  "overall_best_acc": 91.77354579608757,
+  "class_names_file": "class_names.json"
+}
