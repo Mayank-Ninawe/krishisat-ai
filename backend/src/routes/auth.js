@@ -75,4 +75,56 @@ router.get('/profile/:uid', async (req, res) => {
   }
 });
 
+// GET /api/auth/farmer/:uid — farmer stats with scan summary
+router.get('/farmer/:uid', async (req, res) => {
+  try {
+    const farmerDoc = await db.collection('farmers')
+                               .doc(req.params.uid)
+                               .get();
+
+    if (!farmerDoc.exists) {
+      return res.status(404).json({
+        success: false,
+        error  : 'Farmer not found'
+      });
+    }
+
+    // Last 5 scans bhi lo
+    const scansSnap = await db.collection('scans')
+      .where('farmerId', '==', req.params.uid)
+      .orderBy('scannedAt', 'desc')
+      .limit(5)
+      .get();
+
+    const recentScans = scansSnap.docs.map(doc => {
+      const { imageBase64, ...data } = doc.data();
+      return data;
+    });
+
+    // Risk level breakdown
+    const allScansSnap = await db.collection('scans')
+      .where('farmerId', '==', req.params.uid)
+      .get();
+
+    const riskBreakdown = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+    allScansSnap.docs.forEach(doc => {
+      const risk = doc.data().riskLevel;
+      if (riskBreakdown[risk] !== undefined) riskBreakdown[risk]++;
+    });
+
+    res.json({
+      success: true,
+      data   : {
+        ...farmerDoc.data(),
+        recentScans,
+        riskBreakdown
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 module.exports = router;

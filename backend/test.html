@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KrishiSat AI — API Tester</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117; color: #e2e8f0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 24px;
+    }
+    h1 { color: #4ade80; margin-bottom: 6px; }
+    .sub { color: #6b7280; font-size: .85rem; margin-bottom: 28px; }
+
+    .card {
+      background: #161b22; border: 1px solid #212d21;
+      border-radius: 12px; padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h3 { color: #4ade80; margin-bottom: 14px; font-size: .95rem; }
+
+    label { display:block; color:#9ca3af; font-size:.8rem; margin-bottom:4px; }
+    input, textarea {
+      width: 100%; padding: 8px 12px;
+      background: #0d1117; border: 1px solid #2d3748;
+      border-radius: 7px; color: #e2e8f0;
+      font-size: .85rem; margin-bottom: 10px;
+    }
+    textarea { height: 100px; resize: vertical; font-family: monospace; }
+
+    .btn {
+      padding: 9px 22px; border: none; border-radius: 8px;
+      font-weight: 700; cursor: pointer; font-size: .85rem;
+      transition: all .2s;
+    }
+    .btn-green { background: #166534; color: #4ade80; }
+    .btn-green:hover { background: #15803d; }
+    .btn-blue  { background: #1e3a5f; color: #60a5fa; }
+    .btn-blue:hover  { background: #1d4ed8; }
+
+    .response {
+      margin-top: 14px;
+      background: #0a0f14; border: 1px solid #1f2f1f;
+      border-radius: 8px; padding: 14px;
+      font-family: monospace; font-size: .8rem;
+      color: #86efac; max-height: 220px;
+      overflow-y: auto; white-space: pre-wrap;
+      display: none;
+    }
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 999px; font-size: .7rem;
+      font-weight: 700; margin-bottom: 12px;
+    }
+    .get  { background:#052e16; color:#4ade80; border:1px solid #166534; }
+    .post { background:#0c1a2e; color:#60a5fa; border:1px solid #1e3a5f; }
+
+    #token-display {
+      background: #052e16; border: 1px solid #166534;
+      border-radius: 8px; padding: 10px 14px;
+      font-size: .75rem; color: #86efac;
+      word-break: break-all; margin-bottom: 20px;
+      display: none;
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:700px){ .grid2 { grid-template-columns:1fr; } }
+
+    /* iOS/mobile zoom fix on input focus */
+    input, textarea, select {
+      font-size: 16px !important;  /* 16px se kam hone pr zoom hota hai */
+    }
+
+    /* Text overflow fix for small inputs */
+    input {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌾 KrishiSat AI — API Tester</h1>
+<p class="sub">Backend: localhost:5000 &nbsp;|&nbsp; ML Service: localhost:8000</p>
+
+<!-- Token Display -->
+<div id="token-display">🔑 Token: <span id="token-val"></span></div>
+
+<div class="grid2">
+
+  <!-- ── GET TESTS (LEFT COL) ── -->
+  <div>
+    <!-- Health Check -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>1. Health Check</h3>
+      <button class="btn btn-green" onclick="getReq('/health', 'r1')">
+        Run Test
+      </button>
+      <div class="response" id="r1"></div>
+    </div>
+
+    <!-- Root -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>2. Root Info</h3>
+      <button class="btn btn-green" onclick="getReq('/', 'r2')">
+        Run Test
+      </button>
+      <div class="response" id="r2"></div>
+    </div>
+
+    <!-- Districts -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>3. All Districts</h3>
+      <button class="btn btn-green" onclick="getReq('/api/districts', 'r3')">
+        Run Test
+      </button>
+      <div class="response" id="r3"></div>
+    </div>
+
+    <!-- Single District -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>4. District by ID</h3>
+      <label>District ID</label>
+      <input id="dist-id" value="1" type="number" style="width:80px">
+      <button class="btn btn-green" onclick="getReq('/api/districts/'+document.getElementById('dist-id').value, 'r4')">
+        Run Test
+      </button>
+      <div class="response" id="r4"></div>
+    </div>
+
+    <!-- Farmer Profile -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>5. Farmer Profile</h3>
+      <label>Farmer UID (register ke baad milega)</label>
+      <input id="farmer-uid" placeholder="paste uid here">
+      <button class="btn btn-green" onclick="getReq('/api/auth/farmer/'+document.getElementById('farmer-uid').value, 'r5')">
+        Run Test
+      </button>
+      <div class="response" id="r5"></div>
+    </div>
+
+    <!-- Scan History -->
+    <div class="card">
+      <span class="badge get">GET</span>
+      <h3>6. Scan History (Auth)</h3>
+      <label>Needs token (login pehle)</label>
+      <button class="btn btn-green" onclick="authGetReq('/api/scans/history', 'r6')">
+        Run Test
+      </button>
+      <div class="response" id="r6"></div>
+    </div>
+  </div>
+
+  <!-- ── POST TESTS (RIGHT COL) ── -->
+  <div>
+
+    <!-- Register -->
+    <div class="card">
+      <span class="badge post">POST</span>
+      <h3>7. Register Farmer</h3>
+      <label>Email</label>
+      <input id="reg-email" value="ramesh@krishisat.com">
+      <label>Password</label>
+      <input id="reg-pass" value="Test@1234" type="password">
+      <label>Name</label>
+      <input id="reg-name" value="Ramesh Patil">
+      <label>District</label>
+      <input id="reg-dist" value="Nashik">
+      <button class="btn btn-blue" onclick="registerFarmer()">Register</button>
+      <div class="response" id="r7"></div>
+    </div>
+
+    <!-- Login / Get Token -->
+    <div class="card">
+      <span class="badge post">POST</span>
+      <h3>8. Login — Get Token</h3>
+      <label>Firebase Web API Key</label>
+      <input id="api-key" placeholder="paste from Firebase Console">
+      <label>Email</label>
+      <input id="login-email" value="ramesh@krishisat.com">
+      <label>Password</label>
+      <input id="login-pass" value="Test@1234" type="password">
+      <button class="btn btn-blue" onclick="loginFarmer()">Login + Save Token</button>
+      <div class="response" id="r8"></div>
+    </div>
+
+    <!-- Forecast -->
+    <div class="card">
+      <span class="badge post">POST</span>
+      <h3>9. 7-Day Forecast (Auth)</h3>
+      <label>District ID</label>
+      <input id="fc-dist" value="1" type="number" style="width:80px">
+      <button class="btn btn-blue" onclick="testForecast()">Run Forecast</button>
+      <div class="response" id="r9"></div>
+    </div>
+
+    <!-- Disease Scan -->
+    <div class="card">
+      <span class="badge post">POST</span>
+      <h3>10. Disease Scan (Auth)</h3>
+      <label>Crop Type</label>
+      <input id="scan-crop" value="Tomato">
+      <label>Select Leaf Image</label>
+      <input type="file" id="scan-img" accept="image/*">
+      <button class="btn btn-blue" onclick="testScan()" style="margin-top:6px">
+        Scan Image
+      </button>
+      <div class="response" id="r10"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const BASE   = 'http://localhost:5000';
+  let   TOKEN  = '';
+
+  function show(id, data, isError) {
+    const el    = document.getElementById(id);
+    el.style.display = 'block';
+    el.style.color   = isError ? '#f87171' : '#86efac';
+    el.textContent   = JSON.stringify(data, null, 2);
+  }
+
+  async function getReq(path, respId) {
+    try {
+      const r = await fetch(BASE + path);
+      show(respId, await r.json(), !r.ok);
+    } catch(e) { show(respId, { error: e.message }, true); }
+  }
+
+  async function authGetReq(path, respId) {
+    if (!TOKEN) { show(respId, { error: 'Login pehle karo (Test 8)' }, true); return; }
+    try {
+      const r = await fetch(BASE + path, {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      show(respId, await r.json(), !r.ok);
+    } catch(e) { show(respId, { error: e.message }, true); }
+  }
+
+  async function registerFarmer() {
+    try {
+      const r = await fetch(BASE + '/api/auth/register', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify({
+          email   : document.getElementById('reg-email').value,
+          password: document.getElementById('reg-pass').value,
+          name    : document.getElementById('reg-name').value,
+          district: document.getElementById('reg-dist').value,
+          state   : 'Maharashtra'
+        })
+      });
+      const data = await r.json();
+      show('r7', data, !r.ok);
+      if (data.success) {
+        document.getElementById('farmer-uid').value = data.data.uid;
+        document.getElementById('login-email').value = document.getElementById('reg-email').value;
+      }
+    } catch(e) { show('r7', { error: e.message }, true); }
+  }
+
+  async function loginFarmer() {
+    const apiKey = document.getElementById('api-key').value;
+    if (!apiKey) {
+      show('r8', { error: 'Firebase Web API Key daalo' }, true);
+      return;
+    }
+    try {
+      const r = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+        {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({
+            email            : document.getElementById('login-email').value,
+            password         : document.getElementById('login-pass').value,
+            returnSecureToken: true
+          })
+        }
+      );
+      const data = await r.json();
+      show('r8', data, !r.ok);
+      if (data.idToken) {
+        TOKEN = data.idToken;
+        const td = document.getElementById('token-display');
+        td.style.display = 'block';
+        document.getElementById('token-val').textContent =
+          TOKEN.substring(0, 60) + '...';
+      }
+    } catch(e) { show('r8', { error: e.message }, true); }
+  }
+
+  async function testForecast() {
+    if (!TOKEN) { show('r9', { error: 'Login pehle karo (Test 8)' }, true); return; }
+    try {
+      const r = await fetch(BASE + '/api/forecast', {
+        method : 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+          'Authorization': 'Bearer ' + TOKEN
+        },
+        body: JSON.stringify({
+          ndvi_series: [
+            0.65,0.63,0.61,0.59,0.57,0.55,0.53,
+            0.51,0.49,0.48,0.46,0.45,0.43,0.42,
+            0.40,0.39,0.38,0.37,0.36,0.35,0.34,
+            0.33,0.32,0.31,0.30,0.29,0.28,0.27,
+            0.26,0.25
+          ],
+          weather    : { temp:28, humidity:75, rainfall:5, day_of_year:52 },
+          district_id: parseInt(document.getElementById('fc-dist').value)
+        })
+      });
+      show('r9', await r.json(), !r.ok);
+    } catch(e) { show('r9', { error: e.message }, true); }
+  }
+
+  async function testScan() {
+    if (!TOKEN) { show('r10', { error: 'Login pehle karo (Test 8)' }, true); return; }
+    const fileInput = document.getElementById('scan-img');
+    if (!fileInput.files[0]) {
+      show('r10', { error: 'Image select karo' }, true); return;
+    }
+    try {
+      const form = new FormData();
+      form.append('image',         fileInput.files[0]);
+      form.append('cropType',      document.getElementById('scan-crop').value);
+      form.append('fieldLocation', 'Test Field');
+
+      const r = await fetch(BASE + '/api/scans', {
+        method : 'POST',
+        headers: { 'Authorization': 'Bearer ' + TOKEN },
+        body   : form
+      });
+      show('r10', await r.json(), !r.ok);
+    } catch(e) { show('r10', { error: e.message }, true); }
+  }
+</script>
+</body>
+</html>

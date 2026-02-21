@@ -3,6 +3,7 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const morgan  = require('morgan');
+const path    = require('path');
 
 const authRoutes      = require('./src/routes/auth');
 const scanRoutes      = require('./src/routes/scans');
@@ -19,6 +20,11 @@ app.use(cors({ origin: '*' }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// ── TEST PAGE ────────────────────────────────────────────
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test.html'));
+});
 
 // ── ROUTES ─────────────────────────────────────────────
 app.use('/api/auth',      authRoutes);
