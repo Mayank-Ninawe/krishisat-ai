@@ -1,35 +1,36 @@
-import axios from 'axios'
-import { auth } from './firebase'
+import axios from 'axios';
 
-const API_BASE_URL = ''
-
+// localhost:5000 → /api (relative URL, proxied via next.config rewrites)
 export const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true
-})
+  baseURL: '/api',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
-// Keep BACKEND as alias for compatibility
-const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+// Auth token automatically har request me lagao
+api.interceptors.request.use((config) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Auth header helper
-const authHeader = async () => {
-  const user  = auth.currentUser
-  if (!user) return {}
-  const token = await user.getIdToken()
-  return { Authorization: `Bearer ${token}` }
-}
+export default api;
 
 // ── AUTH ─────────────────────────────────────────────
 export const registerFarmer = async (data: {
   email: string; password: string; name: string
   village?: string; district?: string
 }) => {
-  const res = await axios.post(`${BACKEND}/api/auth/register`, data)
+  const res = await api.post('/auth/register', data)
   return res.data
 }
 
 export const getFarmerProfile = async (uid: string) => {
-  const res = await axios.get(`${BACKEND}/api/auth/farmer/${uid}`)
+  const res = await api.get(`/auth/farmer/${uid}`)
   return res.data
 }
 
@@ -37,22 +38,19 @@ export const getFarmerProfile = async (uid: string) => {
 export const scanDisease = async (
   imageFile: File, cropType: string, fieldLocation: string
 ) => {
-  const headers = await authHeader()
-  const form    = new FormData()
+  const form = new FormData()
   form.append('image',         imageFile)
   form.append('cropType',      cropType)
   form.append('fieldLocation', fieldLocation)
 
-  const res = await axios.post(`${BACKEND}/api/scans`, form, { headers })
+  const res = await api.post('/scans', form, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
   return res.data
 }
 
 export const getScanHistory = async (limit = 20) => {
-  const headers = await authHeader()
-  const res     = await axios.get(
-    `${BACKEND}/api/scans/history?limit=${limit}`,
-    { headers }
-  )
+  const res = await api.get(`/scans/history?limit=${limit}`)
   return res.data
 }
 
@@ -60,22 +58,19 @@ export const getScanHistory = async (limit = 20) => {
 export const getForecast = async (
   ndviSeries: number[], weather: object, districtId: number
 ) => {
-  const headers = await authHeader()
-  const res = await axios.post(
-    `${BACKEND}/api/forecast`,
-    { ndvi_series: ndviSeries, weather, district_id: districtId },
-    { headers }
-  )
+  const res = await api.post('/forecast', {
+    ndvi_series: ndviSeries, weather, district_id: districtId
+  })
   return res.data
 }
 
 // ── DISTRICTS ────────────────────────────────────────
 export const getDistricts = async () => {
-  const res = await axios.get(`${BACKEND}/api/districts`)
+  const res = await api.get('/districts')
   return res.data
 }
 
 export const getDistrictRisk = async (id: number) => {
-  const res = await axios.get(`${BACKEND}/api/districts/${id}/risk`)
+  const res = await api.get(`/districts/${id}/risk`)
   return res.data
 }
