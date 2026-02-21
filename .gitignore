@@ -14,9 +14,7 @@ __pycache__/
 ml-service/datasets/
 
 # ML Models (too large)
-ml-service/models/
 *.h5
-*.pt
 *.pkl
 
 # Environment variables
