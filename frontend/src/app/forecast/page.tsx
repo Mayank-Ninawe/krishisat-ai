@@ -323,7 +323,7 @@ export default function ForecastPage() {
             </ResponsiveContainer>
 
             {/* Day Cards */}
-            <div className="grid grid-cols-7 gap-2 mt-4">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-4">
               {result.forecast.map((f: any) => (
                 <div key={f.day}
                      className="text-center p-2 rounded-lg"

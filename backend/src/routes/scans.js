@@ -33,19 +33,14 @@ router.post('/', verifyToken, upload.single('image'), async (req, res) => {
       req.file.mimetype
     );
 
-    // 2. Image → base64 (Storage ke bajaye)
-    const base64Image = `data:${req.file.mimetype};base64,${
-      req.file.buffer.toString('base64')
-    }`;
-
-    // 3. Firestore me scan record save karo
+    // 2. Scan record — NO image stored (Firestore 1MB limit)
     const scanId     = uuidv4();
     const scanRecord = {
       scanId,
       farmerId      : req.user.uid,
       cropType      : cropType      || 'unknown',
       fieldLocation : fieldLocation || '',
-      imageBase64   : base64Image,   // base64 stored directly
+      // imageBase64 REMOVED — too large for Firestore
       disease       : mlResult.data.disease,
       confidence    : mlResult.data.confidence,
       riskLevel     : mlResult.data.risk_level,
@@ -55,6 +50,7 @@ router.post('/', verifyToken, upload.single('image'), async (req, res) => {
       scannedAt     : new Date().toISOString()
     };
 
+    // 3. Firestore me save karo
     await db.collection('scans').doc(scanId).set(scanRecord);
 
     // 4. Farmer ka totalScans update karo
@@ -62,12 +58,9 @@ router.post('/', verifyToken, upload.single('image'), async (req, res) => {
       totalScans: require('firebase-admin').firestore.FieldValue.increment(1)
     });
 
-    // Response me base64 nahi bhejte (too large) — sirf metadata
-    const { imageBase64, ...responseData } = scanRecord;
-
     res.status(201).json({
       success: true,
-      data   : responseData
+      data   : scanRecord
     });
 
   } catch (err) {
@@ -86,11 +79,8 @@ router.get('/history', verifyToken, async (req, res) => {
       .limit(parseInt(limit))
       .get();
 
-    // Base64 exclude karo (heavy hoga response)
-    const scans = snapshot.docs.map(doc => {
-      const { imageBase64, ...data } = doc.data();
-      return data;
-    });
+    // Direct data — no base64 to strip
+    const scans = snapshot.docs.map(doc => doc.data());
 
     res.json({
       success: true,

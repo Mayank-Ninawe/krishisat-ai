@@ -96,10 +96,7 @@ router.get('/farmer/:uid', async (req, res) => {
       .limit(5)
       .get();
 
-    const recentScans = scansSnap.docs.map(doc => {
-      const { imageBase64, ...data } = doc.data();
-      return data;
-    });
+    const recentScans = scansSnap.docs.map(doc => doc.data());
 
     // Risk level breakdown
     const allScansSnap = await db.collection('scans')
