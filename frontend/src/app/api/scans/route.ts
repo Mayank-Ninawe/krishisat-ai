@@ -16,8 +16,9 @@ export async function GET(req: NextRequest) {
 
     const scans = snapshot.docs.map(doc => doc.data());
     return NextResponse.json({ success: true, data: scans });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 401 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unauthorized';
+    return NextResponse.json({ success: false, error: message }, { status: 401 });
   }
 }
 
@@ -55,7 +56,8 @@ export async function POST(req: NextRequest) {
     await db.collection('scans').doc(scanId).set(scanRecord);
 
     return NextResponse.json({ success: true, data: scanRecord }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal server error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
