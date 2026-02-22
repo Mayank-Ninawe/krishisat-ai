@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, auth } from '@/lib/firebaseAdmin';
+import { getDb, getAuth } from '@/lib/firebaseAdmin';
 import { v4 as uuidv4 } from 'uuid';
 
 // GET — History
 export async function GET(req: NextRequest) {
   try {
     const token = req.headers.get('authorization')?.split('Bearer ')[1];
-    const decoded = await auth.verifyIdToken(token!);
+    const decoded = await getAuth().verifyIdToken(token!);
 
-    const snapshot = await db.collection('scans')
+    const snapshot = await getDb().collection('scans')
       .where('farmerId', '==', decoded.uid)
       .orderBy('scannedAt', 'desc')
       .limit(20)
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get('authorization')?.split('Bearer ')[1];
-    const decoded = await auth.verifyIdToken(token!);
+    const decoded = await getAuth().verifyIdToken(token!);
 
     const formData = await req.formData();
     const image    = formData.get('image') as File;
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       scannedAt     : new Date().toISOString()
     };
 
-    await db.collection('scans').doc(scanId).set(scanRecord);
+    await getDb().collection('scans').doc(scanId).set(scanRecord);
 
     return NextResponse.json({ success: true, data: scanRecord }, { status: 201 });
   } catch (err: unknown) {

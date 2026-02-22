@@ -1,15 +1,20 @@
 import admin from 'firebase-admin';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
+function getAdminApp() {
+  if (admin.apps.length) return admin.apps[0]!;
+
+  return admin.initializeApp({
     credential: admin.credential.cert({
-      projectId  : process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey : process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+      projectId  : process.env.FIREBASE_PROJECT_ID!,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+      privateKey : process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')!
     })
   });
 }
 
-export const db   = admin.firestore();
-export const auth = admin.auth();
+// Lazy getters — only initialise at request time, never at build time
+export const getDb   = () => admin.firestore(getAdminApp());
+export const getAuth = () => admin.auth(getAdminApp());
+
+export { admin };
 export default admin;

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebaseAdmin';
+import { getAuth } from '@/lib/firebaseAdmin';
 
 export async function POST(req: NextRequest) {
   try {
     const { idToken } = await req.json();
-    const decoded = await auth.verifyIdToken(idToken);
+    const decoded = await getAuth().verifyIdToken(idToken);
     return NextResponse.json({ success: true, uid: decoded.uid });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 401 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unauthorized';
+    return NextResponse.json({ success: false, error: message }, { status: 401 });
   }
 }
