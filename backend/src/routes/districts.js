@@ -67,7 +67,7 @@ router.get('/:id/weather', async (req, res) => {
       lat        : district.lat,
       lon        : district.lon,
       district_id: district.id
-    }, { timeout: 30000 });
+    }, { timeout: 60000 });
 
     res.json({
       success : true,
@@ -76,7 +76,11 @@ router.get('/:id/weather', async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('Weather/forecast error:', err.message);
+    const msg = err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND'
+      ? 'ML service is starting up, please try again in 1-2 minutes'
+      : (err.response?.data?.detail || err.message);
+    res.status(500).json({ success: false, error: msg });
   }
 });
 
