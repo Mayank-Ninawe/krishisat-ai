@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from './firebase';
 
 export const api = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api`,
@@ -6,9 +7,15 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
-api.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+// Always use a fresh Firebase ID token — avoids 401s from expired localStorage tokens
+api.interceptors.request.use(async (config) => {
+  if (typeof window !== 'undefined') {
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
   return config;
 });
 
