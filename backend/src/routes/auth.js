@@ -5,7 +5,7 @@ const { db, auth } = require('../config/firebase');
 // Register new farmer
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, phone } = req.body;
+    const { email, password, name, phone, village, district } = req.body;
 
     // Validation
     if (!email || !password || !name) {
@@ -28,6 +28,8 @@ router.post('/register', async (req, res) => {
       name,
       email,
       phone    : phone || '',
+      village  : village || '',
+      district : district || '',
       totalScans: 0,
       createdAt: new Date().toISOString()
     });

@@ -3,16 +3,12 @@ services:
     name: krishisat-backend
     env: node
     buildCommand: npm install
-    startCommand: node src/server.js
+    startCommand: node server.js
     plan: free
     envVars:
-      - key: FIREBASE_PROJECT_ID
-        sync: false
-      - key: FIREBASE_CLIENT_EMAIL
-        sync: false
-      - key: FIREBASE_PRIVATE_KEY
+      - key: FIREBASE_SERVICE_ACCOUNT_B64
         sync: false
       - key: ML_SERVICE_URL
-        value: https://krishisat-ai.onrender.com
+        value: https://krishisat-ml.onrender.com
       - key: JWT_SECRET
         sync: false
