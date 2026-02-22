@@ -26,8 +26,8 @@ app.use(cors({
   credentials: true
 }));
 
-// OPTIONS preflight ke liye
-app.options('*', cors());
+// OPTIONS preflight ke liye (path-to-regexp v8+ needs regex, not '*')
+app.options(/.*/, cors());
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
