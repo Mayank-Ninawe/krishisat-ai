@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useAuth }             from '@/context/AuthContext'
-import { getDistricts }        from '@/lib/api'
-import axios                   from 'axios'
+import { getDistricts, api }    from '@/lib/api'
 import {
   BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip,
@@ -10,8 +9,6 @@ import {
   LineChart, Line, Legend
 } from 'recharts'
 import Link from 'next/link'
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
 
 export default function ForecastPage() {
   const { user }    = useAuth()
@@ -71,9 +68,7 @@ export default function ForecastPage() {
 
     try {
       // Real weather fetch karo
-      const res = await axios.get(
-        `${BACKEND}/api/districts/${selectedDist.id}/weather`
-      )
+      const res = await api.get(`/districts/${selectedDist.id}/weather`)
       const data = res.data.data
 
       // Real weather save karo
@@ -87,18 +82,11 @@ export default function ForecastPage() {
       setNdviSeries(ndvi)
 
       // Ab forecast call karo with real weather + dynamic NDVI
-      const { auth } = await import('@/lib/firebase')
-      const token    = await auth.currentUser?.getIdToken()
-
-      const forecastRes = await axios.post(
-        `${BACKEND}/api/forecast`,
-        {
-          ndvi_series : ndvi,
-          weather     : data.weather,
-          district_id : selectedDist.id
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      const forecastRes = await api.post('/forecast', {
+        ndvi_series : ndvi,
+        weather     : data.weather,
+        district_id : selectedDist.id
+      })
 
       setResult(forecastRes.data.data)
 
