@@ -17,10 +17,16 @@ const PORT = process.env.PORT || 5000;
 // ── MIDDLEWARE ─────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://krishisat-ai-8az9.vercel.app'
-  ],
+  origin: function(origin, callback) {
+    // Allow Vercel preview/production URLs + localhost
+    if (!origin ||
+        origin.includes('vercel.app') ||
+        origin.includes('localhost')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(morgan('dev'));
