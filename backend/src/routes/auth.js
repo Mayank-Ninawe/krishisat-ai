@@ -5,51 +5,44 @@ const { db, auth } = require('../config/firebase');
 // Register new farmer
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, village, district, state } = req.body;
+    const { email, password, name, phone } = req.body;
 
+    // Validation
     if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
-        error  : 'email, password, name required'
+        error  : 'Email, password aur name required hai'
       });
     }
 
-    // Firebase Auth user banao
+    // Firebase me user banao
     const userRecord = await auth.createUser({
       email,
       password,
       displayName: name
     });
 
-    // Firestore me farmer profile save karo
+    // Firestore me save karo
     await db.collection('farmers').doc(userRecord.uid).set({
       uid      : userRecord.uid,
       name,
       email,
-      village  : village  || '',
-      district : district || '',
-      state    : state    || 'Maharashtra',
-      createdAt: new Date().toISOString(),
-      totalScans: 0
+      phone    : phone || '',
+      totalScans: 0,
+      createdAt: new Date().toISOString()
     });
 
     res.status(201).json({
       success: true,
-      message: 'Farmer registered successfully',
-      data   : {
-        uid  : userRecord.uid,
-        name,
-        email
-      }
+      uid    : userRecord.uid,
+      message: 'Account created!'
     });
 
   } catch (err) {
-    res.status(400).json({
-      success: false,
-      error  : err.message
-    });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
+
 
 // Get farmer profile
 router.get('/profile/:uid', async (req, res) => {
