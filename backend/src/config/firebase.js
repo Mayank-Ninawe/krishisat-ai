@@ -1,13 +1,13 @@
 const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
+  // Base64 decode — no \n issues ever!
+  const serviceAccount = JSON.parse(
+    Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_B64, 'base64').toString('utf8')
+  );
+
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId  : process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // ↓ yeh line sabse important hai
-      privateKey : process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    })
+    credential: admin.credential.cert(serviceAccount)
   });
 }
 

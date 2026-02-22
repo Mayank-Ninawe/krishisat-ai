@@ -19,12 +19,10 @@ app.use(helmet());
 app.use(cors({
   origin: function(origin, callback) {
     // Allow Vercel preview/production URLs + localhost
-    if (!origin ||
-        origin.includes('vercel.app') ||
-        origin.includes('localhost')) {
+    if (!origin || origin.includes('vercel.app') || origin.includes('localhost')) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('CORS blocked'));
     }
   },
   credentials: true

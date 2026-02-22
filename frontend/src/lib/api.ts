@@ -1,25 +1,23 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
-export const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api`,
+const api = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Always use a fresh Firebase ID token — avoids 401s from expired localStorage tokens
 api.interceptors.request.use(async (config) => {
-  if (typeof window !== 'undefined') {
-    const user = auth.currentUser;
-    if (user) {
-      const token = await user.getIdToken();
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const user = auth.currentUser;
+  if (user) {
+    const token = await user.getIdToken();
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
 export default api;
+export { api };
 
 // ── AUTH ─────────────────────────────────────────────
 export const registerFarmer = async (data: {
